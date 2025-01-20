@@ -35,7 +35,7 @@ function setup() {
   noFill();
 
   let sliderWidth = width * 0.8; // 80% of the canvas width for the sliders
-  baseRadius = height * 0.13;
+  baseRadius = width * 0.06;
 
   // Create sliders with the helper function
   // Outer ring
