@@ -17,56 +17,81 @@ function setup() {
 
   baseRadius = height * 0.13;
 
+  // OUTER
   // Position the sliders centered horizontally
-  slider = createSlider(1, 5, 3, 1);
-  slider.position((width - sliderWidth) / 2, height - 80);
-  slider.style('width', sliderWidth + 'px');
-  slider.style('height', '50px');  // Larger slider height for easier use
+  sliderr = createSlider(0,255,100,1);
+  sliderr.position((width - sliderWidth) / 2, height - 50);
+  sliderr.style('width', sliderWidth / 3 - 10 + 'px');
+  sliderr.style('height', '30px');  // Larger slider height for easier use
+
+  // Position the sliders centered horizontally
+  sliderg = createSlider(0,255,100,1);
+  sliderg.position(10 + sliderWidth / 3 + (width - sliderWidth) / 2, height - 50);
+  sliderg.style('width', sliderWidth / 3 - 10 + 'px');
+  sliderg.style('height', '30px');  // Larger slider height for easier use
+
+  // Position the sliders centered horizontally
+  sliderb = createSlider(0,255,100,1);
+  sliderb.position(15 + sliderWidth / 3 + sliderWidth / 3 + (width - sliderWidth) / 2, height - 50);
+  sliderb.style('width', sliderWidth / 3 - 10 + 'px');
+  sliderb.style('height', '30px');  // Larger slider height for easier use
+
+  //INNER
+  // Position the sliders centered horizontally
+  sliderri = createSlider(0,255,100,1);
+  sliderri.position((width - sliderWidth) / 2, height - 100);
+  sliderri.style('width', sliderWidth / 3 - 10 + 'px');
+  sliderri.style('height', '30px');  // Larger slider height for easier use
+
+  // Position the sliders centered horizontally
+  slidergi = createSlider(0,255,100,1);
+  slidergi.position(10 + sliderWidth / 3 + (width - sliderWidth) / 2, height - 100);
+  slidergi.style('width', sliderWidth / 3 - 10 + 'px');
+  slidergi.style('height', '30px');  // Larger slider height for easier use
+
+  // Position the sliders centered horizontally
+  sliderbi = createSlider(0,255,100,1);
+  sliderbi.position(15 + sliderWidth / 3 + sliderWidth / 3 + (width - sliderWidth) / 2, height - 100);
+  sliderbi.style('width', sliderWidth / 3 - 10 + 'px');
+  sliderbi.style('height', '30px');  // Larger slider height for easier use
 
   slider2 = createSlider(3, 50, 50, 1);
-  slider2.position((width - sliderWidth) / 2, height - 120);
+  slider2.position((width - sliderWidth) / 2, height - 150);
   slider2.style('width', sliderWidth + 'px');
-  slider2.style('height', '50px');
+  slider2.style('height', '30px');
 
-  slider3 = createSlider(0.01, 0.3, 0.01, 0.001);
-  slider3.position((width - sliderWidth) / 2, height - 160);
+  slider3 = createSlider(0.01, 0.1, 0.01, 0.001);
+  slider3.position((width - sliderWidth) / 2, height - 200);
   slider3.style('width', sliderWidth + 'px');
-  slider3.style('height', '50px');
+  slider3.style('height', '30px');
 
-  slider4 = createSlider(0.1, 1.0, 0.01, 0.01);
-  slider4.position((width - sliderWidth) / 2, height - 200);
+  slider4 = createSlider(0.1, 1.0, 0.01, 0.001);
+  slider4.position((width - sliderWidth) / 2, height - 250);
   slider4.style('width', sliderWidth + 'px');
-  slider4.style('height', '50px');
+  slider4.style('height', '30px');
+  
 }
 
 function draw() {
   background(20);
-  translate(width / 2, 1.1 * height / 3); // Center the visualization
+  translate(width / 2, 1 * height / 3); // Center the visualization
 
-  let sliderValue = slider.value(); // Value will be 1, 2, 3, 4, or 5
   numPoints = slider2.value();
+
+  // Get the color values for the inner and outer color strokes
+  let color1 = color(sliderri.value(), slidergi.value(), sliderbi.value()); // Inner color
+  let color2 = color(sliderr.value(), sliderg.value(), sliderb.value()); // Outer color (can be different)
+
 
   strokeWeight(1.2);
   for (let layer = 0; layer < numLayers; layer++) {
     let radius = baseRadius + layer * layerSpacing; // Radius of the current layer
     let noiseScale = layer * slider4.value(); // Scale noise differently for each layer
-    let colorFactor = map(layer, 0, numLayers, 100, 255); // Color gradient
+    let colorFactor = map(layer, 0, numLayers, 0.0, 1.0); // Color gradient
+
+    let lerpedColor = lerpColor(color1, color2, colorFactor);
     
-    if (sliderValue == 1) {
-      stroke(colorFactor, 100, 100); // Gradient color
-    }
-    else if (sliderValue == 2) {
-      stroke(colorFactor, 200, 100); // Gradient color
-    }
-    else if (sliderValue == 3) {
-      stroke(100, colorFactor, 100); // Gradient color
-    }
-    else if (sliderValue == 4) {
-      stroke(100, 200, colorFactor); // Gradient color
-    }
-    else if (sliderValue == 5) {
-      stroke(100, 100, colorFactor); // Gradient color
-    }
+    stroke(lerpedColor); // Gradient color
 
     beginShape();
     for (let i = 0; i < numPoints; i++) {
