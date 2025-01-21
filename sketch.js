@@ -72,8 +72,10 @@ function draw() {
         sin(angle) * noiseOffsetScale + timeOffset,
         timeOffset
       );
+
+      let peakOffset = 1 + sin(angle * numPeaks)
       
-      let r = radius + (noiseScale * noiseOffset * 50);
+      let r = radius + (noiseScale * noiseOffset * 50 * peakOffset);
 
       let x = r * cos(angle);
       let y = r * sin(angle);
