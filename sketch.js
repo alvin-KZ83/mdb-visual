@@ -32,7 +32,7 @@ function updateColorValue(input) {
 function setup() {
   createCanvas(windowWidth, windowHeight / 2);
   noFill();
-  baseRadius = width * 0.1;
+  baseRadius = height * 0.15;
 }
 
 function draw() {
@@ -43,7 +43,8 @@ function draw() {
   const outerColor = color(window.outerRed || 100, window.outerGreen || 100, window.outerBlue || 100);
   const innerColor = color(window.innerRed || 100, window.innerGreen || 100, window.innerBlue || 100);
 
-  const numPoints = parseInt(document.getElementById('num-points').value);
+  const numPoints = 360;
+  const numPeaks = parseInt(document.getElementById('num-points').value);
   const timeFactor = parseFloat(document.getElementById('time-factor').value);
   const noiseScale = parseFloat(document.getElementById('noise-scale').value);
   const thickness = parseFloat(document.getElementById('thickness').value);
@@ -62,12 +63,17 @@ function draw() {
     beginShape();
     for (let i = 0; i < numPoints; i++) {
       let angle = i * TWO_PI / numPoints;
+
+      let layerNoiseOffeset = layer * 0.1;
+      let timeOffset = frameCount * timeFactor + layerNoiseOffeset;
+
       let noiseOffset = noise(
-        cos(angle) * noiseOffsetScale,
-        sin(angle) * noiseOffsetScale,
-        frameCount * timeFactor
+        cos(angle) * noiseOffsetScale + timeOffset,
+        sin(angle) * noiseOffsetScale + timeOffset,
+        timeOffset
       );
-      let r = radius + noiseOffset * 50;
+      
+      let r = radius + (noiseScale * noiseOffset * 50);
 
       let x = r * cos(angle);
       let y = r * sin(angle);
