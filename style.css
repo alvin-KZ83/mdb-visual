@@ -88,13 +88,19 @@ canvas {
 .slider {
     margin-bottom: 20px;
     display: grid;
-    grid-template-columns: 20% 60% 10%;
+    grid-template-columns: 20% 60% 20%;
     align-items: center;
     gap: 10px;
 }
 
 /* Label styling */
 .slider label {
+    text-align: right;
+    font-size: xx-large;
+}
+
+/* Label styling */
+.slider span {
     text-align: left;
     font-size: xx-large;
 }
