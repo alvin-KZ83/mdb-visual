@@ -34,6 +34,7 @@ canvas {
     gap: 0;
     padding: 0;
     overflow: hidden;
+    align-items: center;
 }
 
 /* Container for the color pickers */
@@ -50,7 +51,7 @@ canvas {
 /* Individual color picker styling */
 .color-picker {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     gap: 15px;
 }
@@ -58,11 +59,12 @@ canvas {
 /* Label and color input alignment */
 .color-picker label {
     margin-bottom: 5px;
+    font-size: xx-large;
 }
 
 .color-picker input[type="color"] {
-    width: 40px;
-    height: 40px;
+    width: 80px;
+    height: 80px;
     border: none;
     cursor: pointer;
     padding: 0;
@@ -86,7 +88,7 @@ canvas {
 .slider {
     margin-bottom: 20px;
     display: grid;
-    grid-template-columns: 20% 70% 10%;
+    grid-template-columns: 20% 60% 10%;
     align-items: center;
     gap: 10px;
 }
@@ -94,6 +96,7 @@ canvas {
 /* Label styling */
 .slider label {
     text-align: left;
+    font-size: xx-large;
 }
 
 /* Input slider styles */
