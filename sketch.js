@@ -85,3 +85,24 @@ function draw() {
     endShape(CLOSE);
   }
 }
+
+function copyToClipboard() {
+  // Get all the values
+  const outerColor = document.getElementById("outer-color").value;
+  const innerColor = document.getElementById("inner-color").value;
+  const numPoints = document.getElementById("num-points").value;
+  const timeFactor = document.getElementById("time-factor").value;
+  const noiseScale = document.getElementById("noise-scale").value;
+  const thickness = document.getElementById("thickness").value;
+  const spacing = document.getElementById("spacing").value;
+
+  // Concatenate the values
+  const valueString = `${outerColor}+${innerColor}+${numPoints}+${timeFactor}+${noiseScale}+${thickness}+${spacing}`;
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(valueString).then(() => {
+    alert("Copied to clipboard: " + valueString); // Optional feedback to the user
+  }).catch(err => {
+    console.error("Failed to copy text: ", err);
+  });
+}
