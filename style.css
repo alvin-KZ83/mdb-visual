@@ -30,7 +30,7 @@ canvas {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: 1fr 1fr; /* Two equal sections */
+    grid-template-rows: 1fr 1fr 1fr; /* Two equal sections */
     gap: 0;
     padding: 0;
     overflow: hidden;
@@ -39,37 +39,55 @@ canvas {
 
 /* Container for the color pickers */
 .color-picker-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    gap: 20px; /* Space between grid items */
     color: white;
     font-family: Arial, sans-serif;
     padding: 10px;
     box-sizing: border-box;
+    align-items: center; /* Center items vertically */
+    justify-items: center; /* Center items horizontally */
 }
+
+#copy-button {
+    width: 100%;
+    height: 100%;
+    justify-self: stretch;
+    align-self: stretch;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
 
 /* Individual color picker styling */
 .color-picker {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
+    display: grid;
+    grid-template-rows: 20% 60% 20%; /* 3 rows with proportions 20%, 60%, 20% */
+    align-items: center; /* Vertically center content in each row */
+    justify-items: center; /* Horizontally center content in each row */
+    gap: 10px; /* Space between rows */
 }
 
 /* Label and color input alignment */
 .color-picker label {
-    margin-bottom: 5px;
-    font-size: xx-large;
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%; /* Optional: Ensure it spans the grid cell */
 }
 
+/* Color input alignment */
 .color-picker input[type="color"] {
-    width: 80px;
-    height: 80px;
+    width: 100%;
+    height: 100%;
     border: none;
     cursor: pointer;
     padding: 0;
     appearance: none;
+    justify-self: stretch; /* Center input within its grid cell */
+    align-self: stretch; /* Center input vertically */
 }
+
 
 /* Slider container styling */
 .slider-container {
@@ -82,6 +100,7 @@ canvas {
     align-items: stretch;
     justify-content: space-between;
     height: 100%;
+    gap: 10px;
 }
 
 /* Individual slider styling */
@@ -96,13 +115,13 @@ canvas {
 /* Label styling */
 .slider label {
     text-align: right;
-    font-size: xx-large;
+    font-size: 1.2rem;
 }
 
 /* Label styling */
 .slider span {
     text-align: left;
-    font-size: xx-large;
+    font-size: 1.2rem;
 }
 
 /* Input slider styles */

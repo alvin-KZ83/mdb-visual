@@ -32,7 +32,7 @@ function updateColorValue(input) {
 function setup() {
   createCanvas(windowWidth, windowHeight / 2);
   noFill();
-  baseRadius = height * 0.15;
+  baseRadius = height * 0.1;
 }
 
 function draw() {
