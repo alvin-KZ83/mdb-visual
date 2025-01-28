@@ -4,6 +4,7 @@ from collections import Counter
 from util import read_data
 from scipy import stats
 import os
+from matplotlib import cm
 
 # L = [joy, sad, anger, fear, dsgst]
 # OUTER RING, INNER RING, PEAKS, PACE, NOISE, BOLD, SPACE
@@ -30,55 +31,56 @@ def tally_emotion(emotion):
         tallied_emotion[key] = tally_data(emotion, key)
     return tallied_emotion
         
-def graph_emotion_type(emotion, feature, ax):
+def graph_emotion_type(emotion, feature, ax, color):
     emotion_data = emotions[emotion]
     tallied_emotion = tally_emotion(emotion_data)
     data = tallied_emotion.get(feature, {})
     keys = list(data.keys())
     values = list(data.values())
 
-    if (feature == 'pk'): 
+    if not keys or not values:
+        return  # Skip if no data for this feature
+
+    # Set different scales for each feature
+    if feature == 'pk':
         scale = 1
-    elif (feature == 'pc'):
+    elif feature == 'pc':
         scale = 100
-    elif (feature == 'n'):
+    elif feature == 'n':
         scale = 10
-    elif (feature == 'b'):
+    elif feature == 'b':
         scale = 2
-    elif (feature == 's'):
+    elif feature == 's':
         scale = 0.5
 
     scaled_keys = [key * scale for key in keys]
 
-    # Create a bar plot of the distribution
-    # ax.bar(scaled_keys, values, color='black', width=1)
-
-    # Plot a line that connects the bars
-    ax.plot(scaled_keys, values, color='red', marker='o', linestyle='-', linewidth=2, markersize=5, label='Trend Line')
+    # Plot the line and fill the area below it
+    ax.plot(scaled_keys, values, color=color, marker='o', linestyle='-', linewidth=2, markersize=5)
+    ax.fill_between(scaled_keys, values, color=color, alpha=0.3)
 
     # Adding titles and labels
     ax.set_title(f'Distribution of {features[feature]} for {emotion.capitalize()}', fontsize=12)
     ax.set_xlabel(features[feature], fontsize=10)
     ax.set_ylabel('Frequency', fontsize=10)
-    
-    # Format x-axis labels to show only a few decimal places
     ax.tick_params(axis='x', rotation=45)
 
 def plot_all_emotion_types(emotion):
-    fig, axes = plt.subplots(len(features), 1, figsize=(10, 6 * len(features)))  # Create a figure with multiple subplots
+    # Assign distinct color to each emotion
+    emotion_colors = plt.cm.Set2(np.linspace(0, 1, len(emotions)))
+    color = emotion_colors[list(emotions.keys()).index(emotion)]
 
-    # If there is only one subplot, `axes` is not an array, so we need to handle that case
+    fig, axes = plt.subplots(len(features), 1, figsize=(10, 6 * len(features)), facecolor='none')
+
+    # Ensure axes is a list for consistent handling
     if len(features) == 1:
         axes = [axes]
 
     for i, feature in enumerate(features):
-        graph_emotion_type(emotion, feature, axes[i])  # Plot each emotion type on a separate subplot
+        graph_emotion_type(emotion, feature, axes[i], color)
 
-    # Adjust layout to avoid overlap
     plt.tight_layout()
-
-    # Show the final stacked plot
-    plt.savefig(os.path.join('analyzer//graphs',f'{emotion}.png'))
+    plt.savefig(os.path.join('analyzer//graphs', f'{emotion}.png'), transparent=True)
 
 for key in emotions.keys():
     plot_all_emotion_types(key)
