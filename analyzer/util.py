@@ -49,7 +49,7 @@ dsgst = {
 L = [joy, sad, anger, fear, dsgst]
 
 def read_data():
-    with open('./analyzer/mdb.csv') as mdb_data:
+    with open('./analyzer/mdb_2.csv') as mdb_data:
         raw = mdb_data.readlines()
         raw.pop(0)
         for line in raw:
