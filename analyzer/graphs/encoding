@@ -1,0 +1,11 @@
+| Emotion |  Encoding  |  AV Coding(?) |
+|   JOY   |  1-101-1   |    a+ v+      |
+|   SAD   |  0-000-x   |    a0 v-      |
+|   AGR   |  1-111-1   |    a+ v-      |
+|   FER   |  1-110-0   |    a+ v-      |
+|   DGT   |  x-011-x   |    a- v0      |
+
+a- a0 a+ arousal
+v- v0 v+ valence
+
+Need a better paper to discuss this...
