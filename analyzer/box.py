@@ -40,6 +40,21 @@ box_plot_data = [
     },
 ]
 
+for emotion in box_plot_data:
+    for key, list_value in emotion.items():
+        if (key == 'pk'): 
+            scale = 1
+        elif (key == 'pc'):
+            scale = 100
+        elif (key == 'n'):
+            scale = 10
+        elif (key == 'b'):
+            scale = 2
+        elif (key == 's'):
+            scale = 0.5
+        for i in range(len(list_value)):
+            list_value[i] *= scale
+
 # Assert all lists have exactly 6 elements
 for emotion_data in box_plot_data:
     for feature_values in emotion_data.values():

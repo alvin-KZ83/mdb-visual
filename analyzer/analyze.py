@@ -38,20 +38,20 @@ def graph_emotion_type(emotion, feature, ax):
     values = list(data.values())
 
     if (feature == 'pk'): 
-        scale = 10
+        scale = 1
     elif (feature == 'pc'):
-        scale = 1000
-    elif (feature == 'n'):
         scale = 100
+    elif (feature == 'n'):
+        scale = 10
     elif (feature == 'b'):
-        scale = 20
+        scale = 2
     elif (feature == 's'):
-        scale = 5
+        scale = 0.5
 
     scaled_keys = [key * scale for key in keys]
 
     # Create a bar plot of the distribution
-    ax.bar(scaled_keys, values, color='black', width=1)
+    # ax.bar(scaled_keys, values, color='black', width=1)
 
     # Plot a line that connects the bars
     ax.plot(scaled_keys, values, color='red', marker='o', linestyle='-', linewidth=2, markersize=5, label='Trend Line')
