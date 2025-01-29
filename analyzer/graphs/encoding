@@ -9,3 +9,7 @@ a- a0 a+ arousal
 v- v0 v+ valence
 
 Need a better paper to discuss this...
+
+1.  For the next step, we should have add an accuracy level, and also a place
+    for the participants to discuss why they selected the specific params, and
+    why the shape makes them feel that way
