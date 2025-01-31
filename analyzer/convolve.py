@@ -17,10 +17,10 @@ def convolute(img_source):
 
     # Define a simple kernel (e.g., identity or blur kernel)
     kernel = np.array([
-        [0, 0, 0],
-        [0, 1, 0],
-        [0, 0, 0]
-    ])
+        [1, 1, 1],
+        [1, 1, 1],
+        [1, 1, 1]
+    ]) / 9
 
     # Function to apply convolution using scipy
     def apply_convolution(img_array, kernel):
@@ -68,7 +68,7 @@ def convolute(img_source):
 
     # Create and save the GIF
     file_path = '/'.join(img_source.split('/')[:-1])
-    file_path = file_path + '/convolution_gifs/' + img_source.split('/')[-1][:-3] + 'gif'
+    file_path = file_path + '/blur_convolution_gifs/' + img_source.split('/')[-1][:-3] + 'gif'
 
     imageio.mimsave(file_path, frames, duration=0.1)  # Adjust duration for frame speed
 
