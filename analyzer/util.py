@@ -1,64 +1,27 @@
-dict_id = ['or','ir','pk','pc','n','b','s']
+import csv
 
-joy = {
-    'or' : [],
-    'ir' : [],
-    'pk' : [],
-    'pc' : [],
-    'n' : [],
-    'b' : [],
-    's' : [],
-}
-sad = {
-    'or' : [],
-    'ir' : [],
-    'pk' : [],
-    'pc' : [],
-    'n' : [],
-    'b' : [],
-    's' : [],
-}
-anger = {
-    'or' : [],
-    'ir' : [],
-    'pk' : [],
-    'pc' : [],
-    'n' : [],
-    'b' : [],
-    's' : [],
-}
-fear = {
-    'or' : [],
-    'ir' : [],
-    'pk' : [],
-    'pc' : [],
-    'n' : [],
-    'b' : [],
-    's' : [],
-}
-dsgst = {
-    'or' : [],
-    'ir' : [],
-    'pk' : [],
-    'pc' : [],
-    'n' : [],
-    'b' : [],
-    's' : [],
-}
+emotions = ['joy', 'sad', 'anger', 'fear', 'disgust']
+features = ['or', 'ir', 'pk', 'pc', 'no', 'bo', 'sp']
 
-L = [joy, sad, anger, fear, dsgst]
+def read_data(file_path='./analyzer/raw.csv'):
+    emotion_data = {emotion: [] for emotion in emotions}
+    feature_data = {feature: [] for feature in features}
 
-def read_data():
-    with open('./analyzer/mdb_2.csv') as mdb_data:
-        raw = mdb_data.readlines()
-        raw.pop(0)
-        for line in raw:
-            datas = line.split(',')
-            datas.pop(0)
-            for i in range(len(L)):
-                # L[i] current emotion
-                data = datas[i].split('+')
-                for j in range(len(data)):
-                    entry = data[j] if (j < 2) else float(data[j])
-                    L[i][dict_id[j]].append(entry)
-    return L
+    with open(file_path, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        headers = next(reader)  # Skip header row
+
+        for row in reader:
+            data_points = row[1:]  # Skip 'timestamp'
+            for i, emotion in enumerate(emotions):
+                emotion_data[emotion].append(data_points[i].split('+'))
+
+        # Transpose the emotion data for each feature
+        for feature_index, feature_name in enumerate(features):
+            for emotion in emotions:
+                feature_values = [data[feature_index] for data in emotion_data[emotion]]
+                feature_data[feature_name].append(feature_values)
+
+    return emotion_data, feature_data
+
+EMOTION_DATA, FEATURE_DATA = read_data()

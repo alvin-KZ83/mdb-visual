@@ -1,86 +1,102 @@
+from util import FEATURE_DATA as RAW_DATA
+from util import emotions as E
+from util import features as F
+
 import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.patches as patches
+from matplotlib.colors import to_rgb
+import colorsys
+
 from collections import Counter
-from util import read_data
-from scipy import stats
-import os
-from matplotlib import cm
 
-# L = [joy, sad, anger, fear, dsgst]
-# OUTER RING, INNER RING, PEAKS, PACE, NOISE, BOLD, SPACE
-# or, ir, pk, pc, n, b, s
+feature_titles = ['Outer Ring Color', 'Inner Ring Color', 'Peak (Polygon Edges)', 'Pace (Speed)', 'Noise (Distortion / Disturbance)', 'Boldness / Thickness', 'Space (Airyness)']
 
-data = read_data()
+def generate():
+    for i in range(len(F)):
 
-joy, sad, anger, fear, disgust = data
+        if (i < 2): continue # skip the colors
 
-emotions = {'joy': joy, 'sad':sad, 'anger':anger, 'fear': fear, 'disgust': disgust}
-features = {'pk' : 'Peaks', 'pc': 'Pace', 'n': 'Noise', 'b': 'Bold', 's': 'Space'}
+        data = RAW_DATA[F[i]]
 
-def tally_data(emotion, feature):
-    # type is either or, ir, pk, pc, n, b, s
-    values = emotion[feature]
-    tally = Counter(values)
-    sorted_tally = dict(sorted(tally.items()))
-    return sorted_tally
+        data = [[float(__) for __ in _] for _ in data] # conversion to floats
 
-def tally_emotion(emotion):
-    tallied_emotion = {}
-    for key, value in emotion.items():
-        if (key == 'or' or key == 'ir'): continue
-        tallied_emotion[key] = tally_data(emotion, key)
-    return tallied_emotion
+        x = [set(_) for _ in data]
+        x = sorted(list(set.union(*x)))
+
+        # Initialize the plot
+        plt.figure(figsize=(12, 6))
+
+        # Colors for each list line
+        colors = ['blue', 'orange', 'green', 'red', 'purple']
+
+        for idx, dataset in enumerate(data):
+            # Count occurrences of each value
+            counter = Counter(dataset)
+            
+            # Extract the value-frequency pairs sorted by value
+            y = [counter[value] for value in x]
+            
+            # Plot each line
+            plt.plot(x, y, marker='o', color=colors[idx], label=f'{E[idx].capitalize()}')
+
+        # Labeling
+        plt.title(f'Frequency Data of {feature_titles[i]}')
+        plt.xlabel(f'Values of {feature_titles[i]}')
+        plt.ylabel("Frequency")
+        plt.legend()
+        plt.grid(True)
         
-def graph_emotion_type(emotion, feature, ax, color):
-    emotion_data = emotions[emotion]
-    tallied_emotion = tally_emotion(emotion_data)
-    data = tallied_emotion.get(feature, {})
-    keys = list(data.keys())
-    values = list(data.values())
+        # Save the plot to a specific path
+        save_path = f'analyzer/plots/frequency_{F[i]}.svg'
+        plt.savefig(save_path, format='svg', dpi=300, bbox_inches='tight')
 
-    if not keys or not values:
-        return  # Skip if no data for this feature
+def sort_colors_by_hsl(color_list):
+    """
+    Sorts colors by a combination of Hue, Saturation, and Lightness.
+    Sorting order:
+    1. Hue (Primary)
+    2. Saturation (Secondary)
+    3. Lightness (Tertiary)
+    """
+    # Convert hex colors to RGB, then to HSL for sorting
+    colors_hsl = [(color, colorsys.rgb_to_hls(*to_rgb(color))) for color in color_list]
+    
+    # Sort by hue, saturation, then lightness
+    sorted_colors = sorted(colors_hsl, key=lambda x: (x[1][0], x[1][2], x[1][1]))  # Sort by H, then L, then S
+    return [color[0] for color in sorted_colors]
 
-    # Set different scales for each feature
-    if feature == 'pk':
-        scale = 1
-    elif feature == 'pc':
-        scale = 100
-    elif feature == 'n':
-        scale = 10
-    elif feature == 'b':
-        scale = 2
-    elif feature == 's':
-        scale = 0.5
-
-    scaled_keys = [key * scale for key in keys]
-
-    # Plot the line and fill the area below it
-    ax.plot(scaled_keys, values, color=color, marker='o', linestyle='-', linewidth=2, markersize=5)
-    ax.fill_between(scaled_keys, values, color=color, alpha=0.3)
-
-    # Adding titles and labels
-    ax.set_title(f'Distribution of {features[feature]} for {emotion.capitalize()}', fontsize=12)
-    ax.set_xlabel(features[feature], fontsize=10)
-    ax.set_ylabel('Frequency', fontsize=10)
-    ax.tick_params(axis='x', rotation=45)
-
-def plot_all_emotion_types(emotion):
-    # Assign distinct color to each emotion
-    emotion_colors = plt.cm.Set2(np.linspace(0, 1, len(emotions)))
-    color = emotion_colors[list(emotions.keys()).index(emotion)]
-
-    fig, axes = plt.subplots(len(features), 1, figsize=(10, 6 * len(features)), facecolor='none')
-
-    # Ensure axes is a list for consistent handling
-    if len(features) == 1:
+def visualize_colors(color_data, filetype):
+    num_datasets = len(RAW_DATA[F[color_data]])
+    
+    # Create a single figure with subplots
+    fig, axes = plt.subplots(num_datasets, 1, figsize=(12, 2 * num_datasets))
+    
+    if num_datasets == 1:  # Handle single dataset case for consistent indexing
         axes = [axes]
 
-    for i, feature in enumerate(features):
-        graph_emotion_type(emotion, feature, axes[i], color)
+    for idx, (ax, color_list) in enumerate(zip(axes, RAW_DATA[F[color_data]])):
+        # Sort colors by hue before plotting
+        sorted_colors = sort_colors_by_hsl(color_list)
 
+        # Remove axis for a cleaner look
+        ax.axis('off')
+
+        # Plot color patches for the current dataset
+        for i, color in enumerate(sorted_colors):
+            rect = patches.Rectangle((i, 0), 1, 1, facecolor=color)
+            ax.add_patch(rect)
+
+        # Set plot limits
+        ax.set_xlim(0, len(sorted_colors))
+        ax.set_ylim(0, 1)
+        ax.set_title(f"Dataset for {E[idx].capitalize()}", loc='left')
+
+    # Labeling
+    plt.suptitle(f'Color Grid of {feature_titles[color_data]}')
     plt.tight_layout()
-    plt.savefig(os.path.join('analyzer//graphs', f'{emotion}.png'), transparent=True)
+    save_path = f'analyzer/plots/colors_grid_{F[color_data]}.{filetype}'
+    plt.savefig(save_path, format=f'{filetype}', dpi=300, bbox_inches='tight')
 
-for key in emotions.keys():
-    plot_all_emotion_types(key)
+generate()
+visualize_colors(0, 'svg')
+visualize_colors(1, 'svg')
