@@ -129,6 +129,29 @@ def visualize_colors(color_data, filetype):
     save_path = f'analyzer/plots/colors_grid_{F[color_data]}.{filetype}'
     plt.savefig(save_path, format=f'{filetype}', dpi=300, bbox_inches='tight')
 
-generate()
-visualize_colors(0, 'png')
-visualize_colors(1, 'png')
+def visualize_color(color_data, f_type):
+
+    for idx, color_list in enumerate(color_data):
+        sorted_colors = sort_colors_by_hsl(color_list)
+
+        fig, ax = plt.subplots(figsize=(12, 2))
+        
+        # Remove axis for a cleaner look
+        ax.axis('off')
+
+        # Plot color patches
+        for i, color in enumerate(sorted_colors):
+            rect = patches.Rectangle((i, 0), 1, 1, facecolor=color)
+            ax.add_patch(rect)
+        
+        # Set plot limits
+        ax.set_xlim(0, len(sorted_colors))
+        ax.set_ylim(0, 1)
+        
+        # Save the figure
+        save_path = f'analyzer/plots/colors/{F[f_type]}_{E[idx]}.png'
+        plt.savefig(save_path, format='png', dpi=300, bbox_inches='tight', pad_inches=0)
+        plt.show()
+
+visualize_color(RAW_DATA['or'], 0)
+visualize_color(RAW_DATA['ir'], 1)
