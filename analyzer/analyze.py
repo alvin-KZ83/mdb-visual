@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.colors import to_rgb
 import colorsys
+import random
 
 from collections import Counter
 
@@ -153,5 +154,47 @@ def visualize_color(color_data, f_type):
         plt.savefig(save_path, format='png', dpi=300, bbox_inches='tight', pad_inches=0)
         plt.show()
 
-visualize_color(RAW_DATA['or'], 0)
-visualize_color(RAW_DATA['ir'], 1)
+def generate_freq_table():
+    D = {key : [] for key in E}
+    for i in range(len(F)):
+
+        if (i < 2): continue # skip the colors
+
+        data = RAW_DATA[F[i]]
+
+        data = [[float(__) for __ in _] for _ in data] # conversion to floats
+
+        x = [set(_) for _ in data]
+        x = sorted(list(set.union(*x)))
+
+        for idx, dataset in enumerate(data):
+            # Count occurrences of each value
+            counter = Counter(dataset)
+            
+            # Extract the value-frequency pairs sorted by value
+            y = [counter[value] for value in x]
+            
+            assert len(x) == len(y)
+
+            ftable = []
+
+            for e_idx, a in enumerate(x):
+                ftable.append((a, y[e_idx]))
+
+            sorted_ftable = sorted(ftable, key=lambda x: x[1], reverse=True)[:3]
+
+            D[E[idx]].append(sorted_ftable)
+        
+    for emotion, value in D.items():
+        result = [
+            [(a, b / sum(b for _, b in group)) for a, b in group]
+            for group in value
+        ]
+        D[emotion] = result
+    
+    return D
+
+
+D = generate_freq_table()
+
+
