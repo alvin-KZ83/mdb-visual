@@ -100,22 +100,21 @@ for emotion in E:
 
     paths = []
 
-    for i in range(10):
-        # Example of how to use this function:
-        curr_node = 0  # Define your starting node index here
-        path = ''
+    with open(f'{emotion}.txt', 'a') as the_file:
 
-        while (curr_node < 13):
-            curr_node = find_next_node(curr_node)
-            path += '| ' + nodes[curr_node] + '\t'
-        path += '|'
+        for i in range(5):
+            curr_node = 0  # Define your starting node index here
+            path = ''
 
-        paths.append(path)
+            while (curr_node < 13):
+                curr_node = find_next_node(curr_node)
+                path += nodes[curr_node] + '+'
+            path = path[:-1]
+
+            paths.append(path)
+
+            the_file.write(path + '\n')
     
     NN[emotion] = paths
 
-for key, value in NN.items():
-    print('\t\t' + key + '\n')
-    for paths in value:
-        print(paths)
-    print()
+print(NN)

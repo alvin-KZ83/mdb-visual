@@ -196,5 +196,3 @@ def generate_freq_table():
 
 
 D = generate_freq_table()
-
-
