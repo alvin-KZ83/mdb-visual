@@ -1,9 +1,15 @@
 import csv
 
+'''
+Demographic
+Young Adults (20–35)
+Middle-aged Adults (36–55)
+'''
+
 emotions = ['joy', 'sad', 'anger', 'fear', 'disgust']
 features = ['or', 'ir', 'pk', 'pc', 'no', 'bo', 'sp']
 
-def read_data(file_path='./analyzer/raw.csv'):
+def read_data(file_path='./analyzer/raw_data.csv'):
     emotion_data = {emotion: [] for emotion in emotions}
     feature_data = {feature: [] for feature in features}
 

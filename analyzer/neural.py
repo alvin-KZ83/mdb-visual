@@ -1,12 +1,11 @@
-from analyze import D
+D = {'joy': [[(0.0, 0.18181818181818182), (3.0, 0.13636363636363635), (5.0, 0.18181818181818182), (6.0, 0.2272727272727273), (9.0, 0.13636363636363635), (10.0, 0.13636363636363635)], [(0.01, 1.0)], [(0.1, 1.0)], [(5.0, 1.0)], [(15.0, 1.0)]], 'sad': [[(0.0, 0.4375), (1.0, 0.1875), (2.0, 0.375)], [(0.01, 0.7857142857142857), (0.1, 0.21428571428571427)], [(0.1, 1.0)], [(5.0, 1.0)], [(8.0, 0.33333333333333337), (15.0, 0.6666666666666667)]], 'anger': [[(0.0, 0.13636363636363635), (7.0, 0.18181818181818182), (8.0, 0.13636363636363635), (9.0, 0.18181818181818182), (10.0, 0.36363636363636365)], [(0.1, 1.0)], [(1.0, 1.0)], [(5.0, 1.0)], [(9.0, 0.19047619047619047), (15.0, 0.4761904761904762), (20.0, 0.3333333333333333)]], 'fear': [[(0.0, 0.2727272727272727), (1.0, 0.18181818181818182), (6.0, 0.13636363636363635), (7.0, 0.2272727272727273), (10.0, 0.18181818181818182)], [(0.01, 0.5714285714285714), (0.1, 0.42857142857142855)], [(1.0, 1.0)], [(5.0, 1.0)], [(6.0, 0.21428571428571427), (10.0, 0.21428571428571427), (15.0, 0.5714285714285714)]], 'disgust': [[(0.0, 0.3333333333333333), (2.0, 0.19047619047619047), (5.0, 0.14285714285714285), (6.0, 0.19047619047619047), (10.0, 0.14285714285714285)], [(0.01, 1.0)], [(1.0, 1.0)], [(5.0, 1.0)], [(7.0, 0.23529411764705882), (10.0, 0.29411764705882354), (15.0, 0.47058823529411764)]]}
 from util import emotions as E
 import random
 
 def find_edge_value(joy, s, e):
-    
-    out_idx = int((e - 1) / 3)
-    in_idx = int(((e - 1)  % 3))
-    return (s, e, joy[out_idx][in_idx][1])
+
+    flat_list = [item for sublist in joy for item in sublist]
+    return (s, e, flat_list[e - 1][1])
 
 def create_node_and_edge(emotion_name):
 
@@ -18,59 +17,15 @@ def create_node_and_edge(emotion_name):
         for datapoint in feature:
             nodes.append(str(datapoint[0]))
 
-    edges = [
-        find_edge_value(emotion, 0, 1),
-        find_edge_value(emotion, 0, 2),
-        find_edge_value(emotion, 0, 3),
+    L = []
+    with open(f'./prob_tables/edge_information/{emotion_name}.txt', 'r') as the_file:
+        L = the_file.readlines()
+        L = [_.strip().split(',') for _ in L]
+        L = [(int(x[0]), int(x[1])) for x in L]
+    
+    edges = [find_edge_value(emotion, a, b) for a, b in L]
 
-        find_edge_value(emotion, 1, 4),
-        find_edge_value(emotion, 1, 5),
-        find_edge_value(emotion, 1, 6),
-
-        find_edge_value(emotion, 2, 4),
-        find_edge_value(emotion, 2, 5),
-        find_edge_value(emotion, 2, 6),
-
-        find_edge_value(emotion, 3, 4),
-        find_edge_value(emotion, 3, 5),
-        find_edge_value(emotion, 3, 6),
-        
-        find_edge_value(emotion, 4, 7),
-        find_edge_value(emotion, 4, 8),
-        find_edge_value(emotion, 4, 9),
-
-        find_edge_value(emotion, 5, 7),
-        find_edge_value(emotion, 5, 8),
-        find_edge_value(emotion, 5, 9),
-
-        find_edge_value(emotion, 6, 7),
-        find_edge_value(emotion, 6, 8),
-        find_edge_value(emotion, 6, 9),
-
-        find_edge_value(emotion, 7, 10),
-        find_edge_value(emotion, 7, 11),
-        find_edge_value(emotion, 7, 12),
-
-        find_edge_value(emotion, 8, 10),
-        find_edge_value(emotion, 8, 11),
-        find_edge_value(emotion, 8, 12),
-
-        find_edge_value(emotion, 9, 10),
-        find_edge_value(emotion, 9, 11),
-        find_edge_value(emotion, 9, 12),
-
-        find_edge_value(emotion, 10, 13),
-        find_edge_value(emotion, 10, 14),
-        find_edge_value(emotion, 10, 15),
-
-        find_edge_value(emotion, 11, 13),
-        find_edge_value(emotion, 11, 14),
-        find_edge_value(emotion, 11, 15),
-
-        find_edge_value(emotion, 12, 13),
-        find_edge_value(emotion, 12, 14),
-        find_edge_value(emotion, 12, 15),
-    ]
+    print(nodes, edges)
 
     return nodes, edges
 
@@ -78,6 +33,8 @@ def create_node_and_edge(emotion_name):
 def find_next_node(current_node):
     # Find all the possible edges from the current node
     possible_edges = [edge for edge in edges if edge[0] == current_node]
+
+    if len(possible_edges) == 0: return
     
     # Extract the nodes and probabilities for the next step
     next_nodes = [edge[1] for edge in possible_edges]
@@ -86,6 +43,9 @@ def find_next_node(current_node):
     # Normalize the probabilities (they should already sum to 1, but just in case)
     total_prob = sum(probabilities)
     probabilities = [prob / total_prob for prob in probabilities]
+
+    print(next_nodes)
+    print(probabilities)
     
     # Select the next node based on the probabilities
     next_node = random.choices(next_nodes, probabilities)[0]
@@ -100,13 +60,13 @@ for emotion in E:
 
     paths = []
 
-    with open(f'{emotion}.txt', 'a') as the_file:
+    with open(f'./samples/{emotion}.txt', 'a') as the_file:
 
-        for i in range(5):
+        for i in range(20):
             curr_node = 0  # Define your starting node index here
             path = ''
 
-            while (curr_node < 13):
+            while (find_next_node(curr_node)):
                 curr_node = find_next_node(curr_node)
                 path += nodes[curr_node] + '+'
             path = path[:-1]
@@ -116,5 +76,3 @@ for emotion in E:
             the_file.write(path + '\n')
     
     NN[emotion] = paths
-
-print(NN)
