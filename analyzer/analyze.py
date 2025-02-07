@@ -197,9 +197,9 @@ def generate_freq_table():
     
     return D
 
-# generate()
-# visualize_colors(0, 'svg')
-# visualize_colors(1, 'svg')
+generate()
+visualize_colors(0, 'svg')
+visualize_colors(1, 'svg')
 D = generate_freq_table()
 print(D)
 

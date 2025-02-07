@@ -44,10 +44,10 @@ def write_edges_to_file(edges, output_file):
         for edge in edges:
             f.write(edge + '\n')
 
-
+emotion = 'disgust'
 # Paths
-input_file = './prob_tables/disgust_prob.txt'  # Replace with your actual file path
-output_file = './prob_tables/edge_information/disgust.txt'
+input_file = f'./prob_tables/{emotion}_prob.txt'  # Replace with your actual file path
+output_file = f'./prob_tables/edge_information/{emotion}.txt'
 
 # Process
 levels = parse_file(input_file)
