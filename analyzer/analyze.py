@@ -40,6 +40,12 @@ def generate():
             # Plot each line
             plt.plot(x, y, marker='o', color=colors[idx], label=f'{E[idx].capitalize()}')
 
+
+            with open(f'analyzer/plots/tables/{E[idx]}_{F[i]}.csv', 'w') as f:
+                for j in range(len(x)):
+                    f.write(str(x[j]) + ',' + str(y[j]) + '\n')
+
+
         # Labeling
         plt.title(f'Frequency Data of {feature_titles[i]}')
         plt.xlabel(f'Values of {feature_titles[i]}')
@@ -198,8 +204,8 @@ def generate_freq_table():
     return D
 
 generate()
-visualize_colors(0, 'svg')
-visualize_colors(1, 'svg')
-D = generate_freq_table()
-print(D)
+# visualize_colors(0, 'svg')
+# visualize_colors(1, 'svg')
+# D = generate_freq_table()
+# print(D)
 
