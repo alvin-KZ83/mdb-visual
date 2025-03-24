@@ -1,81 +1,82 @@
-let numLayers = 10;
+const LAYER_COUNT = 10; // Variable to keep track of the number of ring layers
+let negative = true; // Added to play with monochromatic colors
+let inverse = true; // Added to play with lerped color direction
+
+let PARAMS = [
+    // NOISE, PACE, FRQ
+    [0.1, 0.1, 0.5]
+] 
+
 let baseRadius;
+let FREQ = 0.5;
+let pulseAmplitude = 0.5;
 
-function updateValue(slider) {
-  const valueSpan = document.getElementById(slider.id + '-value');
-  valueSpan.textContent = slider.value;
-}
+let lastClickTime = 0;  // Store the time of the last click
+let doubleClickThreshold = 300;  // Maximum time between clicks for a double-click (in milliseconds)
+let clickTimeout;
 
-function updateColorValue(input) {
-  const hexColor = input.value;
-  const r = parseInt(hexColor.substr(1, 2), 16);
-  const g = parseInt(hexColor.substr(3, 2), 16);
-  const b = parseInt(hexColor.substr(5, 2), 16);
+let startX, endX;
+let swiping = false;
+let swipeThreshold = 100;
 
-  // Update the corresponding color value display
-  document.getElementById(input.id + "-value").textContent = hexColor;
 
-  // Optionally, store RGB values in variables for use in your drawing
-  if (input.id === "outer-color") {
-    window.outerRed = r;
-    window.outerGreen = g;
-    window.outerBlue = b;
-  } else if (input.id === "inner-color") {
-    window.innerRed = r;
-    window.innerGreen = g;
-    window.innerBlue = b;
-  }
+/*
+  Additional section for connecting to heart rate monitor 
+*/
 
-  console.log(`Color selected: ${hexColor} -> R: ${r}, G: ${g}, B: ${b}`);
-}
+let heartRate = 0;
+let bleDevice;
+let heartRateCharacteristic;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight / 2);
-  noFill();
-  baseRadius = height * 0.1;
+  createCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
-  background(20);
-  translate(width / 2, height / 2);
+  let BACKGROUND_COLOR = negative ? color(255) : color(0);
+  let LAYER_COLOR = negative ? color(0) : color(255);
 
-  // Use the RGB values stored in the window object
-  const outerColor = color(window.outerRed || 100, window.outerGreen || 100, window.outerBlue || 100);
-  const innerColor = color(window.innerRed || 100, window.innerGreen || 100, window.innerBlue || 100);
+  background(BACKGROUND_COLOR);
+  strokeWeight(5);
+  noFill();
+  
+  translate(windowWidth / 2, windowHeight / 2);
 
-  const numPoints = 360;
-  const numPeaks = parseInt(document.getElementById('num-points').value);
-  const timeFactor = parseFloat(document.getElementById('time-factor').value);
-  const noiseScale = parseFloat(document.getElementById('noise-scale').value);
-  const thickness = parseFloat(document.getElementById('thickness').value);
-  const spacing = parseInt(document.getElementById('spacing').value);
+  // const NOISE = PARAMS[0][0];   // 0.10 to 1.00
+  // const PACE  = PARAMS[0][1];   // 0.01 to 0.10
+  // const FREQ  = PARAMS[0][2];   // 0.00 to 0.00
 
-  strokeWeight(thickness);
+  let NOISE = (heartRate) < 100 ? 0   : map(heartRate, 100, 160, 0.1, 1)
+  let PACE =  (heartRate) < 100 ? 0   : map(heartRate, 100, 160, 0.01, 0.1)
+  let FREQ =  (heartRate) < 80  ? 0.1 : map(heartRate,  80, 160, 0, 1)
 
-  for (let layer = 0; layer < numLayers; layer++) {
-    let radius = baseRadius + layer * spacing;
-    let noiseOffsetScale = layer * noiseScale;
-    let colorFactor = map(layer, 0, numLayers, 0, 1);
-    let lerpedColor = lerpColor(innerColor, outerColor, colorFactor);
+  // every 10 above a hundred introduces the noise
+  // under 100, it should remain normal pulsing and stay circle
+
+  baseRadius = windowHeight * 0.1 + sin(frameCount * FREQ) * pulseAmplitude * windowHeight * 0.1;
+
+  for (let layer = 0; layer < LAYER_COUNT; layer++) {
+    let radius = baseRadius + layer * 20;
+    let noiseOffsetScale = layer * NOISE;
+    let colorFactor = map(layer, 0, LAYER_COUNT, 0, 1);
+    let lerpedColor = inverse ? lerpColor(BACKGROUND_COLOR, LAYER_COLOR, colorFactor) : lerpColor(LAYER_COLOR, BACKGROUND_COLOR, colorFactor);
 
     stroke(lerpedColor);
 
     beginShape();
-    for (let i = 0; i < numPoints; i++) {
-      let angle = i * TWO_PI / numPoints;
+    for (let i = 0; i < 360; i++) {
+      let angle = i * TWO_PI / 360;
 
       let layerNoiseOffeset = layer * 0.1;
-      let timeOffset = frameCount * timeFactor + layerNoiseOffeset;
+      let timeOffset = frameCount * PACE + layerNoiseOffeset;
 
       let noiseOffset = noise(
         cos(angle) * noiseOffsetScale + timeOffset,
         sin(angle) * noiseOffsetScale + timeOffset,
         timeOffset
       );
-
-      let peakOffset = 1 + sin(angle * numPeaks)
       
-      let r = radius + (noiseScale * noiseOffset * 50 * peakOffset);
+      let r = radius + (NOISE * noiseOffset * 50);
 
       let x = r * cos(angle);
       let y = r * sin(angle);
@@ -84,25 +85,87 @@ function draw() {
     }
     endShape(CLOSE);
   }
+
+  // HR
+  noStroke(0);
+  fill(0);
+  textSize(20);
+  textAlign(CENTER, CENTER);
+  text(`${heartRate}`, 0, 0);
 }
 
-function copyToClipboard() {
-  // Get all the values
-  const outerColor = document.getElementById("outer-color").value;
-  const innerColor = document.getElementById("inner-color").value;
-  const numPoints = document.getElementById("num-points").value;
-  const timeFactor = document.getElementById("time-factor").value;
-  const noiseScale = document.getElementById("noise-scale").value;
-  const thickness = document.getElementById("thickness").value;
-  const spacing = document.getElementById("spacing").value;
 
-  // Concatenate the values
-  const valueString = `${outerColor}+${innerColor}+${numPoints}+${timeFactor}+${noiseScale}+${thickness}+${spacing}`;
+async function connectToBLE() {
+  try {
+    // Request the BLE device
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ services: ['heart_rate'] }]
+    });
 
-  // Copy to clipboard
-  navigator.clipboard.writeText(valueString).then(() => {
-    alert("Copied to clipboard: " + valueString); // Optional feedback to the user
-  }).catch(err => {
-    console.error("Failed to copy text: ", err);
-  });
+    // Connect to the GATT server
+    const server = await bleDevice.gatt.connect();
+    
+    // Get the Heart Rate service
+    const service = await server.getPrimaryService('heart_rate');
+    
+    // Get the Heart Rate Measurement characteristic
+    heartRateCharacteristic = await service.getCharacteristic('heart_rate_measurement');
+
+    // Enable notifications
+    heartRateCharacteristic.startNotifications();
+    heartRateCharacteristic.addEventListener('characteristicvaluechanged', handleHeartRate);
+    
+    console.log("Connected to BLE Heart Rate Sensor");
+
+  } catch (error) {
+    console.error("BLE Connection Error: ", error);
+  }
 }
+
+function handleHeartRate(event) {
+  let value = event.target.value;
+  let heartRateValue = value.getUint8(1); // Extract heart rate from the data
+  heartRate = heartRateValue;
+}
+
+function mouseClicked() {
+    if (mouseButton === LEFT) {
+      let currentTime = millis();  // Get the current time in milliseconds
+      if (currentTime - lastClickTime < doubleClickThreshold) {
+        clearTimeout(clickTimeout);
+        // Double click detected
+        inverse = !inverse
+        // Add your double-click logic here
+      }
+      lastClickTime = currentTime;  // Update the last click time
+    }
+  }
+  
+  function mousePressed() {
+    // Start of the swipe (when mouse is pressed)
+    startX = mouseX;
+    swiping = true;
+  }
+  
+  function mouseReleased() {
+    // End of the swipe (when mouse is released)
+    endX = mouseX;
+    
+    // Check if the swipe is horizontal and has moved far enough
+    if (swiping && abs(endX - startX) > swipeThreshold) {
+      if (endX > startX) {
+        console.log("Swipe Right");
+        // Add your right swipe logic here
+      } else {
+        console.log("Swipe Left");
+        // Add your left swipe logic here
+      }
+    }
+    
+    // Reset swipe state
+    swiping = false;
+  }
+
+  function keyPressed() {
+    connectToBLE()
+  }

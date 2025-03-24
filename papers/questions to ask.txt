@@ -1,6 +1,26 @@
+This will be a short study about emotional representation, thank you so much for participating in this today!
+To start, can I ask:
+
+1. How old are you? What is your gender?
+
+Background
+1. Do you consider yourself to be a very expressive person?
+2. Do others easily understand how you are feeling at times?
+
+Information
 1. Are you aware of the difference between expressing your emotions and signaling your emotions?
 2. What do you think expressing/signaling emotion is?
 3. Do you prefer to express or signal emotions? Why?
-
 4. Are there emotions you find hard to express/signal?
 5. How comfortable are you with openly expressing your emotions in a social setting, for example at work, with family or through social media?
+6. How about for signaling?
+
+Experiment
+Now, I want to ask you to answer a short survey. You will be shown gifs one by one, each using a visualizer. You will then classify what emotion do you think it represents. You can also say it fails to classify any emotion by saying none. Please think out loud when you are going through the process of deciding what the emotion is. 
+
+Extra
+(Focus on specific emotions that they can classify the most! Ask why!)
+1. What was the feature or thing that you noticed the most from the visualizer?
+2. Was there a specific part of the visualizer that you based your decisions on?
+
+Thank you!
