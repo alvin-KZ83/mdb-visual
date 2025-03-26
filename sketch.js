@@ -1,11 +1,11 @@
 const LAYER_COUNT = 10; // Variable to keep track of the number of ring layers
 let negative = true; // Added to play with monochromatic colors
-let inverse = true; // Added to play with lerped color direction
+let inverse = false; // Added to play with lerped color direction
 
 let PARAMS = [
-    // NOISE, PACE, FRQ
-    [0.1, 0.1, 0.5]
-] 
+  // NOISE, PACE, FRQ
+  [0.1, 0.1, 0.5]
+]
 
 let baseRadius;
 let FREQ = 0.5;
@@ -39,16 +39,16 @@ function draw() {
   background(BACKGROUND_COLOR);
   strokeWeight(5);
   noFill();
-  
+
   translate(windowWidth / 2, windowHeight / 2);
 
   // const NOISE = PARAMS[0][0];   // 0.10 to 1.00
   // const PACE  = PARAMS[0][1];   // 0.01 to 0.10
   // const FREQ  = PARAMS[0][2];   // 0.00 to 0.00
 
-  let NOISE = (heartRate) < 100 ? 0   : map(heartRate, 100, 160, 0.1, 1)
-  let PACE =  (heartRate) < 100 ? 0   : map(heartRate, 100, 160, 0.01, 0.1)
-  let FREQ =  (heartRate) < 80  ? 0.1 : map(heartRate,  80, 160, 0, 1)
+  let NOISE = (heartRate) < 100 ? 0 : map(heartRate, 100, 160, 0.1, 1)
+  let PACE = (heartRate) < 100 ? 0 : map(heartRate, 100, 160, 0.01, 0.1)
+  let FREQ = (heartRate) < 80 ? 0.1 : map(heartRate, 80, 160, 0, 1)
 
   // every 10 above a hundred introduces the noise
   // under 100, it should remain normal pulsing and stay circle
@@ -75,7 +75,7 @@ function draw() {
         sin(angle) * noiseOffsetScale + timeOffset,
         timeOffset
       );
-      
+
       let r = radius + (NOISE * noiseOffset * 50);
 
       let x = r * cos(angle);
@@ -104,17 +104,17 @@ async function connectToBLE() {
 
     // Connect to the GATT server
     const server = await bleDevice.gatt.connect();
-    
+
     // Get the Heart Rate service
     const service = await server.getPrimaryService('heart_rate');
-    
+
     // Get the Heart Rate Measurement characteristic
     heartRateCharacteristic = await service.getCharacteristic('heart_rate_measurement');
 
     // Enable notifications
     heartRateCharacteristic.startNotifications();
     heartRateCharacteristic.addEventListener('characteristicvaluechanged', handleHeartRate);
-    
+
     console.log("Connected to BLE Heart Rate Sensor");
 
   } catch (error) {
@@ -128,44 +128,35 @@ function handleHeartRate(event) {
   heartRate = heartRateValue;
 }
 
-function mouseClicked() {
-    if (mouseButton === LEFT) {
-      let currentTime = millis();  // Get the current time in milliseconds
-      if (currentTime - lastClickTime < doubleClickThreshold) {
-        clearTimeout(clickTimeout);
-        // Double click detected
-        inverse = !inverse
-        // Add your double-click logic here
-      }
-      lastClickTime = currentTime;  // Update the last click time
+function doubleClicked() {
+  inverse = !inverse
+}
+
+function mousePressed() {
+  // Start of the swipe (when mouse is pressed)
+  startX = mouseX;
+  swiping = true;
+}
+
+function mouseReleased() {
+  // End of the swipe (when mouse is released)
+  endX = mouseX;
+
+  // Check if the swipe is horizontal and has moved far enough
+  if (swiping && abs(endX - startX) > swipeThreshold) {
+    if (endX > startX) {
+      console.log("Swipe Right");
+      // Add your right swipe logic here
+    } else {
+      console.log("Swipe Left");
+      // Add your left swipe logic here
     }
-  }
-  
-  function mousePressed() {
-    // Start of the swipe (when mouse is pressed)
-    startX = mouseX;
-    swiping = true;
-  }
-  
-  function mouseReleased() {
-    // End of the swipe (when mouse is released)
-    endX = mouseX;
-    
-    // Check if the swipe is horizontal and has moved far enough
-    if (swiping && abs(endX - startX) > swipeThreshold) {
-      if (endX > startX) {
-        console.log("Swipe Right");
-        // Add your right swipe logic here
-      } else {
-        console.log("Swipe Left");
-        // Add your left swipe logic here
-      }
-    }
-    
-    // Reset swipe state
-    swiping = false;
   }
 
-  function keyPressed() {
-    connectToBLE()
-  }
+  // Reset swipe state
+  swiping = false;
+}
+
+function keyPressed() {
+  connectToBLE()
+}
