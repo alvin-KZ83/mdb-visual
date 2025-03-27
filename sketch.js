@@ -19,7 +19,6 @@ let startX, endX;
 let swiping = false;
 let swipeThreshold = 100;
 
-
 /*
   Additional section for connecting to heart rate monitor 
 */
@@ -28,8 +27,30 @@ let heartRate = 0;
 let bleDevice;
 let heartRateCharacteristic;
 
+/*
+  Additional section for connecting to video
+*/
+
+let video;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  // Request access to webcam
+  let constraints = {
+    video: true,
+    audio: false
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream) {
+      video = createCapture(stream);
+      video.size(width, height);
+      video.hide(); // Hide default HTML video element
+    })
+    .catch(function(error) {
+      console.error('Error accessing the camera:', error);
+    });
 }
 
 function draw() {
@@ -92,6 +113,10 @@ function draw() {
   textSize(20);
   textAlign(CENTER, CENTER);
   text(`${heartRate}`, 0, 0);
+
+  if (video) {
+    image(video, 0, 0, 100, 100);
+  }
 }
 
 
