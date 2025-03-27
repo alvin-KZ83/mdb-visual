@@ -4,7 +4,7 @@ let inverse = false; // Added to play with lerped color direction
 
 let PARAMS = [
   // NOISE, PACE, FRQ
-  [0.1, 0.1, 0.1]
+  [0.1, 0.1, 0.5]
 ]
 
 let baseRadius;
@@ -35,11 +35,27 @@ let video;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  // Request access to webcam
+  let constraints = {
+    video: true,
+    audio: false
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream) {
+      video = createCapture(stream);
+      video.size(width, height);
+      video.hide(); // Hide default HTML video element
+    })
+    .catch(function(error) {
+      console.error('Error accessing the camera:', error);
+    });
 }
 
 function draw() {
-  let BACKGROUND_COLOR  = negative ? color('#ffffff') : color('#69479F');
-  let LAYER_COLOR       = negative ? color('#69479F') : color('#ffffff');
+  let BACKGROUND_COLOR = negative ? color('#e5d3b3') : color(30);
+  let LAYER_COLOR = negative ? color('#664229') : color(255);
 
   background(BACKGROUND_COLOR);
   strokeWeight(5);
@@ -47,16 +63,16 @@ function draw() {
 
   translate(windowWidth / 2, windowHeight / 2);
 
-  let NOISE = PARAMS[0][0];   // 0.10 to 1.00
-  let PACE  = PARAMS[0][1];   // 0.01 to 0.10
-  let FREQ  = PARAMS[0][2];   // 0.00 to 0.00
+  // const NOISE = PARAMS[0][0];   // 0.10 to 1.00
+  // const PACE  = PARAMS[0][1];   // 0.01 to 0.10
+  // const FREQ  = PARAMS[0][2];   // 0.00 to 0.00
 
-  // let NOISE = (heartRate) < 100 ? 0 : map(heartRate, 100, 160, 0.1, 1)
-  // let PACE = (heartRate) < 100 ? 0 : map(heartRate, 100, 160, 0.01, 0.1)
-  // let FREQ = (heartRate) < 80 ? 0.1 : map(heartRate, 80, 160, 0, 1)
+  let NOISE = (heartRate) < 100 ? 0 : map(heartRate, 100, 160, 0.1, 1)
+  let PACE = (heartRate) < 100 ? 0 : map(heartRate, 100, 160, 0.01, 0.1)
+  let FREQ = (heartRate) < 80 ? 0.1 : map(heartRate, 80, 160, 0, 1)
 
-  // // every 10 above a hundred introduces the noise
-  // // under 100, it should remain normal pulsing and stay circle
+  // every 10 above a hundred introduces the noise
+  // under 100, it should remain normal pulsing and stay circle
 
   baseRadius = windowHeight * 0.1 + sin(frameCount * FREQ) * pulseAmplitude * windowHeight * 0.1;
 
@@ -97,6 +113,10 @@ function draw() {
   textSize(20);
   textAlign(CENTER, CENTER);
   text(`${heartRate}`, 0, 0);
+
+  if (video) {
+    image(video, -windowWidth / 2 + 50, -windowHeight / 2 + 50, 3 * 180, 3 * 90); // Tailored to S25
+  }
 }
 
 
@@ -163,3 +183,58 @@ function mouseReleased() {
 }
 
 document.querySelector('#connectBluetooth').addEventListener('click', e => connectToBLE());
+
+/*
+ *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree.
+ */
+'use strict';
+
+// Put variables in global scope to make them available to the browser console.
+const constraints = window.constraints = {
+  audio: false,
+  video: true
+};
+
+function handleSuccess(stream) {
+  const video = document.querySelector('video');
+  const videoTracks = stream.getVideoTracks();
+  console.log('Got stream with constraints:', constraints);
+  console.log(`Using video device: ${videoTracks[0].label}`);
+  window.stream = stream; // make variable available to browser console
+  video.srcObject = stream;
+}
+
+function handleError(error) {
+  if (error.name === 'OverconstrainedError') {
+    errorMsg(`OverconstrainedError: The constraints could not be satisfied by the available devices. Constraints: ${JSON.stringify(constraints)}`);
+  } else if (error.name === 'NotAllowedError') {
+    errorMsg('NotAllowedError: Permissions have not been granted to use your camera and ' +
+      'microphone, you need to allow the page access to your devices in ' +
+      'order for the demo to work.');
+  }
+  errorMsg(`getUserMedia error: ${error.name}`, error);
+}
+
+function errorMsg(msg, error) {
+  const errorElement = document.querySelector('#errorMsg');
+  errorElement.innerHTML += `<p>${msg}</p>`;
+  if (typeof error !== 'undefined') {
+    console.error(error);
+  }
+}
+
+async function init(e) {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    handleSuccess(stream);
+    e.target.disabled = true;
+  } catch (e) {
+    handleError(e);
+  }
+}
+
+document.querySelector('#showVideo').addEventListener('click', e => init(e));
