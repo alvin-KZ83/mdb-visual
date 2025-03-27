@@ -54,8 +54,8 @@ function setup() {
 }
 
 function draw() {
-  let BACKGROUND_COLOR = negative ? color(255) : color(0);
-  let LAYER_COLOR = negative ? color(0) : color(255);
+  let BACKGROUND_COLOR = negative ? color('#e5d3b3') : color(30);
+  let LAYER_COLOR = negative ? color('#664229') : color(255);
 
   background(BACKGROUND_COLOR);
   strokeWeight(5);
@@ -108,8 +108,8 @@ function draw() {
   }
 
   // HR
-  noStroke(0);
-  fill(0);
+  noStroke(LAYER_COLOR);
+  fill(LAYER_COLOR);
   textSize(20);
   textAlign(CENTER, CENTER);
   text(`${heartRate}`, 0, 0);
@@ -154,7 +154,7 @@ function handleHeartRate(event) {
 }
 
 function doubleClicked() {
-  inverse = !inverse
+  negative = !negative
 }
 
 function mousePressed() {
